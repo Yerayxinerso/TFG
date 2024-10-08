@@ -18,7 +18,6 @@ import java.awt.Graphics2D;
  * bidimensional. El autómata se puede ejecutar tanto en un solo hilo como en múltiples hilos
  * para evaluar el rendimiento paralelo.
  */
-
 public class CellularAutomaton2D_Frontera_acotada_tipo_int_bloqueo_lock {
     static int[][] currentGrid;
     static int[][] nextGrid;
