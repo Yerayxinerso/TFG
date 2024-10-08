@@ -1,6 +1,7 @@
 #include "task.h"
 #include <semaphore>
 
+// Inicialización de las variables estáticas de la clase task
 int task::generations;
 int task::cell_proliferation_potential_max;
 float task::chance_spontaneous_death;
@@ -13,10 +14,15 @@ int task::numThreads;
 int task::size;
 vector<vector<int>> task::currentGrid;
 vector<vector<int>> task::nextGrid;
-//barrier *task::b;
 barrier<> *task::b;
 bool task::printing = false;
 
+/**
+ * @brief Verifica si alguna célula ha alcanzado el borde de la cuadrícula.
+ * 
+ * @param nextGrid La cuadrícula siguiente que se está evaluando.
+ * @return true si se alcanzó el borde, false en caso contrario.
+ */
 bool task::check_reach_border(vector<vector<int>> nextGrid)
 {
     for (int i = 0; i < size; i++)
@@ -25,6 +31,9 @@ bool task::check_reach_border(vector<vector<int>> nextGrid)
     return false;
 }
 
+/**
+ * @brief Extiende el tamaño de la cuadrícula para acomodar células que se acercan a los bordes.
+ */
 void task::extend_domain()
 {
     vector<vector<int>> newGrid(size + size / 2, vector<int>(size + size / 2, 0));
@@ -36,6 +45,13 @@ void task::extend_domain()
     nextGrid = newGrid;
 }
 
+/**
+ * @brief Constructor de la clase task.
+ * 
+ * @param th_indx Índice del hilo.
+ * @param startRow Fila de inicio asignada al hilo.
+ * @param endRow Fila de fin asignada al hilo.
+ */
 task::task(int th_indx, int startRow, int endRow)
 {
     this->th_indx = th_indx;
@@ -43,6 +59,20 @@ task::task(int th_indx, int startRow, int endRow)
     this->endRow = endRow;
 }
 
+/**
+ * @brief Configura los parámetros de la simulación.
+ * 
+ * @param size Tamaño de la cuadrícula.
+ * @param generations Número de generaciones a simular.
+ * @param currentGrid Cuadrícula actual.
+ * @param nextGrid Cuadrícula siguiente.
+ * @param cell_proliferation_potential_max Potencial máximo de proliferación de las células.
+ * @param chance_spontaneous_death Probabilidad de muerte espontánea.
+ * @param chance_proliferation Probabilidad de proliferación.
+ * @param chance_STC_creation Probabilidad de creación de células STC.
+ * @param chance_migration Probabilidad de migración.
+ * @param starter_cell_is_STC Indica si la célula inicial es una STC.
+ */
 void task::setSimulationParameters(int size, int generations, vector<vector<int>> currentGrid, vector<vector<int>> nextGrid, int cell_proliferation_potential_max, float chance_spontaneous_death, int chance_proliferation, int chance_STC_creation, int chance_migration, bool starter_cell_is_STC)
 {
     task::size = size;
@@ -57,6 +87,13 @@ void task::setSimulationParameters(int size, int generations, vector<vector<int>
     task::starter_cell_is_STC = starter_cell_is_STC;
 }
 
+/**
+ * @brief Verifica si una célula en la posición (i, j) muere espontáneamente.
+ * 
+ * @param i Índice de la fila.
+ * @param j Índice de la columna.
+ * @return true si la célula muere espontáneamente, false en caso contrario.
+ */
 bool task::check_chance_spontaneous_death(int i, int j)
 {
     // check if cell is empty
@@ -68,6 +105,13 @@ bool task::check_chance_spontaneous_death(int i, int j)
     return false;
 }
 
+/**
+ * @brief Verifica si una célula en la posición (i, j) prolifera.
+ * 
+ * @param i Índice de la fila.
+ * @param j Índice de la columna.
+ * @return true si la célula prolifera, false en caso contrario.
+ */
 bool task::check_chance_proliferation(int i, int j)
 {
     if (currentGrid[i][j] == 0)
@@ -78,6 +122,13 @@ bool task::check_chance_proliferation(int i, int j)
     return false;
 }
 
+/**
+ * @brief Verifica si una célula en la posición (i, j) migra.
+ * 
+ * @param i Índice de la fila.
+ * @param j Índice de la columna.
+ * @return true si la célula migra, false en caso contrario.
+ */
 bool task::check_chance_migration(int i, int j)
 {
     if (currentGrid[i][j] == 0)
@@ -88,6 +139,13 @@ bool task::check_chance_migration(int i, int j)
     return false;
 }
 
+/**
+ * @brief Verifica si se crea una célula STC en la posición (i, j).
+ * 
+ * @param i Índice de la fila.
+ * @param j Índice de la columna.
+ * @return true si se crea una STC, false en caso contrario.
+ */
 bool task::check_chance_STC_creation(int i, int j)
 {
     if (currentGrid[i][j] == 0)
@@ -98,6 +156,13 @@ bool task::check_chance_STC_creation(int i, int j)
     return false;
 }
 
+/**
+ * @brief Busca un espacio libre alrededor de la posición (i, j).
+ * 
+ * @param i Índice de la fila.
+ * @param j Índice de la columna.
+ * @return Vector con las coordenadas de un espacio libre.
+ */
 vector<int> task::look_free_space(int i, int j)
 {
     vector<int> free_space;
@@ -145,6 +210,13 @@ vector<int> task::look_free_space(int i, int j)
     return vector<int>();
 }
 
+/**
+ * @brief Imprime la cuadrícula en un archivo BMP.
+ * 
+ * @param grid La cuadrícula que se va a imprimir.
+ * @param iteration Iteración actual de la simulación.
+ * @param numThreads Número de hilos en uso.
+ */
 void task::printGrid(vector<vector<int>> grid, int iteration, int numThreads)
 {
     // write grid to bitmap (STC cells are yellow, empty cells are white, RTC cells are a gradient of red to black)
@@ -204,6 +276,12 @@ void task::printGrid(vector<vector<int>> grid, int iteration, int numThreads)
     file.close();
 }
 
+/**
+ * @brief Calcula el siguiente estado de la célula en la posición (i, j).
+ * 
+ * @param i Índice de la fila.
+ * @param j Índice de la columna.
+ */
 void task::nextState(int i, int j)
 {
     if (currentGrid[i][j] <= 0)
@@ -277,6 +355,11 @@ void task::nextState(int i, int j)
     }
 }
 
+/**
+ * @brief Sobrecarga del operador de llamada de función para ejecutar la tarea.
+ * 
+ * Ejecuta las operaciones necesarias para la simulación en el rango de filas asignado al hilo.
+ */
 void task::operator()()
 {
     std::binary_semaphore sem(1);
