@@ -1,3 +1,8 @@
+/**
+ * @file main.cpp
+ * @brief Programa principal que ejecuta una simulación de proliferación y migración celular en paralelo y secuencialmente.
+ */
+
 #include <iostream>
 #include <fstream>
 #include <thread>
@@ -5,10 +10,18 @@
 
 using namespace std;
 
-int size;
-int numThreads = 8;
-int generations;
+int size; ///< Tamaño de la cuadrícula
+int numThreads = 8; ///< Número de hilos por defecto
+int generations; ///< Número de generaciones para la simulación
 
+/**
+ * @brief Inicializa las cuadrículas de la simulación con las condiciones iniciales.
+ * 
+ * @param currentGrid Puntero a la cuadrícula actual.
+ * @param nextGrid Puntero a la siguiente cuadrícula.
+ * @param starter_cell_is_STC Indica si la célula inicial es una célula madre (STC).
+ * @param cell_proliferation_potential_max Potencial máximo de proliferación celular.
+ */
 void initializeGrid(vector<vector<char>> *currentGrid, vector<vector<char>> *nextGrid, bool starter_cell_is_STC, int cell_proliferation_potential_max)
 {
     ::size = 400;
@@ -26,16 +39,27 @@ void initializeGrid(vector<vector<char>> *currentGrid, vector<vector<char>> *nex
     }
 }
 
+/**
+ * @brief Función principal que ejecuta la simulación de proliferación y migración celular.
+ * 
+ * El usuario puede seleccionar diferentes escenarios predefinidos que afectan los parámetros de la simulación,
+ * como el potencial de proliferación celular, la probabilidad de muerte espontánea, y la creación de células madre.
+ * 
+ * La simulación se ejecuta tanto en paralelo como secuencialmente, midiendo los tiempos de ejecución y comparando la eficiencia.
+ * 
+ * @return int Código de retorno del programa.
+ */
 int main()
 {
     srand(time(0));
-    int cell_proliferation_potential_max = 10;
-    float chance_spontaneous_death = 0.1f;
-    int chance_proliferation = 10;
-    int chance_migration = 10;
-    int chance_STC_creation = 10;
-    bool starter_cell_is_STC = true;
+    int cell_proliferation_potential_max = 10; ///< Potencial máximo de proliferación celular.
+    float chance_spontaneous_death = 0.1f; ///< Probabilidad de muerte espontánea.
+    int chance_proliferation = 10; ///< Probabilidad de proliferación.
+    int chance_migration = 10; ///< Probabilidad de migración.
+    int chance_STC_creation = 10; ///< Probabilidad de creación de células madre.
+    bool starter_cell_is_STC = true; ///< Indica si la célula inicial es una célula madre.
 
+    // Menú de selección de escenarios
     cout << "Scenario selector" << endl;
     cout << "=====================================================================\n"
          << endl;
@@ -87,6 +111,7 @@ int main()
     cout << "Cuantos hilos desea utilizar? (2, 4, 8, 16...)";
     cin >> numThreads;
     
+    // Archivo de configuración de escenarios
     vector<string> scenarios = {"defaultsettings.settings", "Scenario1Pmax10.settings",
                                 "Scenario1Pmax15.settings", "Scenario1Pmax20.settings", "Scenario2Pmax10.settings",
                                 "Scenario2Pmax15.settings", "Scenario2Pmax20.settings", "Scenario3Pmax10.settings",
@@ -96,6 +121,7 @@ int main()
                                 "Scenario5Cw1Ps1.settings", "Scenario5Cw1Ps10.settings", "Scenario5Cw5Ps1.settings",
                                 "Scenario5Cw5Ps10.settings"};
 
+    // Carga del archivo de configuración seleccionado
     ifstream file("./presets/" + scenarios[scenario - 1]);
     cout << "opening file: " << "./presets/" + scenarios[scenario - 1] << endl;
     ::size = 400;
@@ -110,6 +136,7 @@ int main()
     starter_cell_is_STC = starter_cell_is_STC_str == "true";
     file.close();
 
+    // Imprime los parámetros cargados
     cout << "Generations: " << generations << endl;
     cout << "Cell proliferation potential max: " << cell_proliferation_potential_max << endl;
     cout << "Chance spontaneous death: " << chance_spontaneous_death << endl;
@@ -118,15 +145,17 @@ int main()
     cout << "Chance STC creation: " << chance_STC_creation << endl;
     cout << "Starter cell is STC: " << starter_cell_is_STC << endl;
 
+    // Inicializa las cuadrículas
     vector<vector<char>> currentGrid(::size, vector<char>(::size, 0));
     vector<vector<char>> nextGrid(::size, vector<char>(::size, 0));
 
+    // Configura los parámetros de simulación
     initializeGrid(&currentGrid, &nextGrid, starter_cell_is_STC, cell_proliferation_potential_max);
     task::setSimulationParameters(::size, generations, currentGrid, nextGrid, cell_proliferation_potential_max, chance_spontaneous_death, chance_proliferation, chance_STC_creation, chance_migration, starter_cell_is_STC);
     task::printing = printGrid;
 
     task::numThreads = numThreads;
-    //barrier b(numThreads);
+    // Barrera de sincronización entre hilos
     barrier<> b(numThreads);
     task::b = &b;
     cout << "Number of threads: " << numThreads << endl;
