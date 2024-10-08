@@ -11,6 +11,12 @@ import javax.imageio.ImageIO;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
+/**
+ * Clase principal que implementa un autómata celular en dos dimensiones con frontera acotada.
+ * Se utiliza para simular la proliferación y comportamiento de células en un entorno
+ * bidimensional. El autómata se puede ejecutar tanto en un solo hilo como en múltiples hilos
+ * para evaluar el rendimiento paralelo.
+ */
 public class CellularAutomaton2D_Frontera_acotada_tipo_char_synchronized {
     static char[][] currentGrid;
     static char[][] nextGrid;
@@ -18,6 +24,12 @@ public class CellularAutomaton2D_Frontera_acotada_tipo_char_synchronized {
     static int numThreads = 1;
     static int generations;
 
+    /**
+     * Método principal que inicia la ejecución del autómata celular.
+     * @param args Argumentos de línea de comandos.
+     * @throws InterruptedException Si ocurre una interrupción en la ejecución de hilos.
+     * @throws IOException Si ocurre un error al leer archivos o entradas de usuario.
+     */
     public static void main(String[] args) throws InterruptedException, IOException {
         // first of all, empty the output folder
         File outputFolder = new File("output");
@@ -27,7 +39,8 @@ public class CellularAutomaton2D_Frontera_acotada_tipo_char_synchronized {
                 f.delete();
             }
         }
-
+        
+        // Configuración de los parámetros predeterminados del autómata celular
         int cell_proliferation_potential_max = 10;
         float chance_spontaneous_death = 0.1f;
         int chance_proliferation = 10;
@@ -35,8 +48,10 @@ public class CellularAutomaton2D_Frontera_acotada_tipo_char_synchronized {
         int chance_STC_creation = 10;
         boolean starter_cell_is_STC = true;
 
+        // Menú de selección de escenarios        
         System.out.println("Scenario selector");
         System.out.println("=====================================================================\n");
+        // Se imprimen las opciones de escenario disponibles...
         System.out.println("1. Default settings");
         System.out.println("2. Scenario 1 Pmax 10");
         System.out.println("3. Scenario 1 Pmax 15");
@@ -94,6 +109,7 @@ public class CellularAutomaton2D_Frontera_acotada_tipo_char_synchronized {
             e.printStackTrace();
         }
 
+        // Cargar configuración específica del escenario seleccionado
         String[] scenarios = { "defaultsettings.settings", "Scenario1Pmax10.settings",
                 "Scenario1Pmax15.settings", "Scenario1Pmax20.settings", "Scenario2Pmax10.settings",
                 "Scenario2Pmax15.settings", "Scenario2Pmax20.settings", "Scenario3Pmax10.settings",
@@ -127,6 +143,7 @@ public class CellularAutomaton2D_Frontera_acotada_tipo_char_synchronized {
             e.printStackTrace();
         }
 
+        // Imprimir los parámetros cargados de la simulación
         System.out.println("Tamano de la reticula: " + size);
         System.out.println("Numero de generaciones: " + generations);
         System.out.println("Potencial de proliferacion celular maximo: " + cell_proliferation_potential_max);
@@ -136,6 +153,7 @@ public class CellularAutomaton2D_Frontera_acotada_tipo_char_synchronized {
         System.out.println("Probabilidad de migracion: " + chance_migration + "%");
         System.out.println("La celula inicial es una celula madre: " + starter_cell_is_STC + "\n");
 
+        // Configurar la simulación y crear la retícula inicial
         task.setSimulationParameters(size, generations, currentGrid, nextGrid, cell_proliferation_potential_max,
                 chance_spontaneous_death, chance_proliferation, chance_STC_creation, chance_migration,
                 starter_cell_is_STC);
@@ -185,6 +203,11 @@ public class CellularAutomaton2D_Frontera_acotada_tipo_char_synchronized {
 
     }
 
+    /**
+     * Inicializa la retícula del autómata celular.
+     * @param grid La retícula a inicializar.
+     * @return La retícula inicializada con las células de inicio.
+     */
     static char[][] initializeGrid(char[][] grid) {
         task.size = 400;
         grid = new char[size][size];
@@ -199,6 +222,9 @@ public class CellularAutomaton2D_Frontera_acotada_tipo_char_synchronized {
     }
 }
 
+/**
+ * Clase que implementa la lógica de cada hilo en la simulación.
+ */
 class task implements Runnable {
     public static String SCENARIO;
     private int th_indx;
@@ -218,12 +244,33 @@ class task implements Runnable {
     static int chance_migration;
     static boolean starter_cell_is_STC = true;
 
+    /**
+     * Constructor de la clase task.
+     * @param th_indx Índice del hilo.
+     * @param startRow Fila inicial que procesará el hilo.
+     * @param endRow Fila final que procesará el hilo.
+     */
     task(int th_indx, int startRow, int endRow) {
         this.th_indx = th_indx;
         this.startRow = startRow;
         this.endRow = endRow;
     }
 
+    /**
+     * Establece los parámetros de la simulación, incluyendo el tamaño de la cuadrícula, 
+     * número de generaciones, probabilidad de muerte espontánea, y otros parámetros específicos de las células.
+     * 
+     * @param size El tamaño de la cuadrícula.
+     * @param generations El número de generaciones a simular.
+     * @param currentGrid La cuadrícula actual que contiene las células.
+     * @param nextGrid La cuadrícula que almacenará el siguiente estado de las células.
+     * @param cell_proliferation_potential_max El potencial máximo de proliferación celular.
+     * @param chance_spontaneous_death Probabilidad de muerte espontánea de una célula (0 a 100).
+     * @param chance_proliferation Probabilidad de proliferación celular (0 a 100).
+     * @param chance_STC_creation Probabilidad de creación de una célula madre de tipo STC (0 a 100).
+     * @param chance_migration Probabilidad de migración de células (0 a 100).
+     * @param starter_cell_is_STC Determina si la célula inicial es de tipo STC.
+     */
     public static void setSimulationParameters(int size, int generations, char[][] currentGrid, char[][] nextGrid,
             int cell_proliferation_potential_max, float chance_spontaneous_death, int chance_proliferation,
             int chance_STC_creation, int chance_migration, boolean starter_cell_is_STC) {
@@ -239,6 +286,13 @@ class task implements Runnable {
         task.starter_cell_is_STC = starter_cell_is_STC;
     }
 
+    /**
+     * Evalúa el siguiente estado de la célula ubicada en las coordenadas (i, j) de la cuadrícula. 
+     * Aplica las reglas de muerte espontánea, proliferación, creación de células STC, y migración.
+     * 
+     * @param i La fila de la célula en la cuadrícula.
+     * @param j La columna de la célula en la cuadrícula.
+     */
     public void nextState(int i, int j) {
         if (currentGrid[i][j] <= 0) {
             return;
@@ -291,6 +345,14 @@ class task implements Runnable {
         }
     }
 
+    /**
+     * Verifica si una célula en las coordenadas (i, j) sufre muerte espontánea 
+     * en función de una probabilidad aleatoria.
+     * 
+     * @param i La fila de la célula en la cuadrícula.
+     * @param j La columna de la célula en la cuadrícula.
+     * @return true si la célula muere espontáneamente, false en caso contrario.
+     */
     public static boolean chance_spontaneous_death(int i, int j) {
         // check if cell is empty
         if (currentGrid[i][j] == 0 || currentGrid[i][j] > cell_proliferation_potential_max)
@@ -301,6 +363,13 @@ class task implements Runnable {
         return false;
     }
 
+    /**
+     * Verifica si una célula en las coordenadas (i, j) prolifera en función de una probabilidad aleatoria.
+     * 
+     * @param i La fila de la célula en la cuadrícula.
+     * @param j La columna de la célula en la cuadrícula.
+     * @return true si la célula prolifera, false en caso contrario.
+     */
     public static boolean chance_proliferation(int i, int j) {
         if (currentGrid[i][j] == 0)
             return false;
@@ -310,6 +379,13 @@ class task implements Runnable {
         return false;
     }
 
+    /**
+     * Verifica si una célula en las coordenadas (i, j) migra en función de una probabilidad aleatoria.
+     * 
+     * @param i La fila de la célula en la cuadrícula.
+     * @param j La columna de la célula en la cuadrícula.
+     * @return true si la célula migra, false en caso contrario.
+     */
     public static boolean chance_migration(int i, int j) {
         if (currentGrid[i][j] == 0)
             return false;
@@ -319,6 +395,13 @@ class task implements Runnable {
         return false;
     }
 
+    /**
+     * Verifica si una célula en las coordenadas (i, j) crea una célula STC en función de una probabilidad aleatoria.
+     * 
+     * @param i La fila de la célula en la cuadrícula.
+     * @param j La columna de la célula en la cuadrícula.
+     * @return true si se crea una célula STC, false en caso contrario.
+     */
     public static boolean chance_STC_creation(int i, int j) {
         if (currentGrid[i][j] == 0)
             return false;
@@ -328,6 +411,14 @@ class task implements Runnable {
         return false;
     }
 
+
+    /**
+     * Busca un espacio libre alrededor de la célula en las coordenadas (i, j).
+     * 
+     * @param i La fila de la célula en la cuadrícula.
+     * @param j La columna de la célula en la cuadrícula.
+     * @return Un array con las coordenadas del espacio libre o null si no hay espacio disponible.
+     */
     public static int[] look_free_space(int i, int j) {
         int[] free_space = new int[2];
         int random_number = ThreadLocalRandom.current().nextInt(0, 1000) % 4;
@@ -367,6 +458,13 @@ class task implements Runnable {
         return null;
     }
 
+    /**
+     * Imprime el estado de la cuadrícula en una imagen PNG, coloreando las células según su estado.
+     * 
+     * @param grid La cuadrícula que contiene las células a imprimir.
+     * @param iteration El número de la iteración actual de la simulación.
+     * @param numThreads El número de hilos usados en la simulación.
+     */
     public static void printGrid(char[][] grid, int iteration, int numThreads) {
         BufferedImage img = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = img.createGraphics();
@@ -389,6 +487,10 @@ class task implements Runnable {
         }
     }
 
+    /**
+     * Método que se ejecuta al iniciar el hilo. Realiza la simulación para cada generación,
+     * actualizando la cuadrícula y aplicando las reglas de la simulación.
+     */
     @Override
     public void run() {
         for (int gen = 0; gen < generations; gen++) {
@@ -438,6 +540,15 @@ class task implements Runnable {
         }
     }
 
+    /**
+     * Verifica si hay una célula en el borde de la cuadrícula.
+     * Si hay una célula en cualquiera de los bordes de la cuadrícula, 
+     * indica que se debe expandir el dominio.
+     * 
+     * @param nextGrid La cuadrícula que se va a verificar.
+     * @return true si se detecta una célula en el borde de la cuadrícula, 
+     *         false en caso contrario.
+     */
     private boolean check_reach_border(char[][] nextGrid) {
         for (int i = 0; i < size; i++)
             if (nextGrid[0][i] != 0 || nextGrid[size - 1][i] != 0 || nextGrid[i][0] != 0 || nextGrid[i][size - 1] != 0)
@@ -445,6 +556,11 @@ class task implements Runnable {
         return false;
     }
 
+    /**
+     * Expande el dominio de la cuadrícula en caso de que una célula alcance 
+     * el borde. Se crea una nueva cuadrícula más grande y se copia el contenido 
+     * de la cuadrícula actual en el centro de la nueva.
+     */
     private void extend_domain() {
         char[][] newGrid = new char[size + size / 2][size + size / 2];
         for (int i = 0; i < size; i++)
