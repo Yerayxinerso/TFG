@@ -31,7 +31,6 @@ public class CellularAutomaton2D_Frontera_acotada_tipo_int_bloqueo_lock {
      * @throws InterruptedException Si ocurre una interrupción en la ejecución de hilos.
      * @throws IOException Si ocurre un error al leer archivos o entradas de usuario.
      */
-
     public static void main(String[] args) throws InterruptedException, IOException {
         // first of all, empty the output folder
         File outputFolder = new File("output");
@@ -212,7 +211,6 @@ public class CellularAutomaton2D_Frontera_acotada_tipo_int_bloqueo_lock {
      * @param grid La retícula a inicializar.
      * @return La retícula inicializada con las células de inicio.
      */
-
     static int[][] initializeGrid(int[][] grid) {
         task.size = 400;
         grid = new int[size][size];
