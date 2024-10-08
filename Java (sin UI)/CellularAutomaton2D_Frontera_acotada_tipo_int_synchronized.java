@@ -1,3 +1,10 @@
+
+/**
+ * @file CellularAutomaton2D_Frontera_acotada_tipo_int_synchronized.java
+ * @author Yeray Doello Gonzalez
+ * @brief This file contains the user interface for the cellular automata simulation
+ */
+
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ThreadLocalRandom;
 import java.awt.image.BufferedImage;
