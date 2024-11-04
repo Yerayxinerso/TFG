@@ -26,6 +26,23 @@ El cáncer sigue siendo una de las enfermedades más desafiantes de tratar y ent
   - **QCustomPlot** y **JFreeChart** para la visualización de resultados.
 - **Paralelización:** OpenMP y MPI para mejorar la escalabilidad y distribución de tareas.
 
+## Estructura del Repositorio
+
+El repositorio se encuentra estructurado en diferentes carpetas que representan las distintas implementaciones y escenarios. A continuación, se detalla cada sección:
+
+- **CPP (con UI)**: Contiene la implementación en C++ con interfaz gráfica (UI) utilizando *Qt*. Esta carpeta incluye:
+  - `main.cpp`, `mainwindow.cpp`, `mainwindow.h`: Ficheros principales de la lógica de la UI.
+  - `qcustomplot.cpp`, `qcustomplot.h`: Ficheros para gráficos personalizados en la interfaz.
+  - `presets/`: Archivos de configuración predefinidos que permiten cargar escenarios de simulación específicos.
+    
+- **CPP (sin UI)**: Implementación en C++ sin interfaz gráfica, dividida en subcarpetas basadas en las técnicas de sincronización y tipos de datos utilizados (e.g., `char_mutex`, `int_semaphore`). Estas variaciones permiten comparar el rendimiento y comportamiento del sistema bajo diferentes configuraciones.
+
+- **Java (con UI)**: Implementación en Java con una interfaz gráfica para simular y visualizar el crecimiento tumoral. Esta sección se organiza en:
+  - `UI.java`: Código fuente principal de la interfaz.
+  - `presets/`: Escenarios de configuración que se pueden cargar desde la UI.
+    
+- **Java (sin UI)**: Incluye diversas versiones de la implementación sin interfaz gráfica, diferenciadas por el uso de mecanismos de sincronización como `synchronized` y `ReentrantLock`, y el tipo de dato utilizado (e.g., `byte`, `char`, `int`). Estas variaciones facilitan el análisis del rendimiento bajo distintas configuraciones, en línea con las mejores prácticas de concurrencia en Java.
+
 ## Instalación
 
 1. **Requisitos previos**:
