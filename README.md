@@ -66,7 +66,9 @@ El cáncer sigue siendo una de las enfermedades más desafiantes de tratar y ent
    Dependiendo de si es la versión con o sin IU.):
 1. ```bash
      Java UI
+     ```
      o
+     ```bash
      Java nombre_del_archivo
      ```
 
