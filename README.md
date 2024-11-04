@@ -41,33 +41,33 @@ El cáncer sigue siendo una de las enfermedades más desafiantes de tratar y ent
 
 3. **Compilación**:
    - Para la parte de C++:
+     - Sin IU.
      ```bash
      g++ task.h task.cpp main.cpp -std=c++2a -o main.exe
      ```
-     Sin IU.
+      - Con IU.
     ```
     Desde QtCreator
     ```
-    Con IU.
    - Para la parte de Java:
+     - Sin IU.
      ```bash
      javac nombre_del_archivo.java
      ```
-     Sin IU.
+      - Con IU.
      ```bash
      javac -cp jcommon-1.0.23.jar jfreechart-1.0.19.jar UI.java
      ```
-    Con IU.
 
 ## Uso
  - Para C++:
-1a. **Ejecuta el binario compilado en C++ para iniciar la simulación.**
-   - Para Java:
-1b. ```bash
+1. **Ejecuta el binario compilado en C++ para iniciar la simulación.**
+   - Para Java (
+   Dependiendo de si es la versión con o sin IU.):
+1. ```bash
      Java UI
      o
      Java nombre_del_archivo
      ```
-   Dependiendo de si es la versión con o sin IU.
 
 2. **A través de la interfaz, selecciona las configuraciones de la simulación, ejecuta y visualiza los resultados.**
